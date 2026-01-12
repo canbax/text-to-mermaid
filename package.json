@@ -1,0 +1,52 @@
+{
+  "name": "your-library",
+  "version": "3.0.0",
+  "description": "A template for a javascript library",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "format": "prettier --write src/",
+    "lint": "oxlint",
+    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -r 0 -s",
+    "build": "tsup",
+    "preview": "vite preview",
+    "test-watch": "vitest",
+    "test": "vitest run",
+    "prepare": "husky install",
+    "checks": "npm run format && npm run lint && npm run test"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,vue,astro,svelte,json,md}": [
+      "prettier --write",
+      "oxlint"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "conventional-changelog-cli": "^5.0.0",
+    "conventional-changelog-conventionalcommits": "^9.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "oxlint": "^1.2.0",
+    "prettier": "3.5.3",
+    "tsup": "^8.5.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}
