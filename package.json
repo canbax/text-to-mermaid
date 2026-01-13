@@ -1,5 +1,5 @@
 {
-  "name": "your-library",
+  "name": "text-to-mermaid",
   "version": "3.0.0",
   "description": "A template for a javascript library",
   "type": "module",
@@ -48,5 +48,9 @@
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2",
+    "compromise": "^14.14.5"
   }
 }
