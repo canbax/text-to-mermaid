@@ -1,9 +1,13 @@
-import { yourLibFunction } from "./index.ts";
+import { textToMermaid } from "./index.ts";
 
-const result = yourLibFunction(1, 2);
+const input = "User clicks Button";
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div>
-    <pre>${JSON.stringify(result, null, 2)}</pre>
-  </div>
-`;
+textToMermaid(input, { useAiFallback: true }).then((result) => {
+  document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+    <div>
+      <h3>Input: "${input}"</h3>
+      <h3>Output:</h3>
+      <pre class="mermaid">${result}</pre>
+    </div>
+  `;
+});
