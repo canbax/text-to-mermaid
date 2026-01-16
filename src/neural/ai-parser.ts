@@ -2,7 +2,7 @@ import { pipeline } from "@xenova/transformers";
 
 export class NeuralParser {
   private static instance: NeuralParser;
-  private generator: any = null;
+  private pipe: any = null;
 
   private constructor() {}
 
@@ -15,15 +15,15 @@ export class NeuralParser {
 
   async parse(text: string): Promise<string> {
     try {
-      if (!this.generator) {
-        this.generator = await pipeline(
+      if (!this.pipe) {
+        this.pipe = await pipeline(
           "text2text-generation",
           "Xenova/LaMini-Flan-T5-78M",
         );
       }
 
       const prompt = `Convert this text to a mermaid.js flowchart: ${text}`;
-      const result = await this.generator(prompt, { max_new_tokens: 512 });
+      const result = await this.pipe(prompt, { max_new_tokens: 512 });
 
       let output = result[0].generated_text || "";
 
