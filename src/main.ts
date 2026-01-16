@@ -1,6 +1,7 @@
 import { textToMermaid } from "./index.ts";
 
-const input = "User clicks Button";
+const input =
+  "The fast multipole method (FMM) is a numerical technique that was developed to speed up the calculation of long-ranged forces in the n-body problem";
 
 textToMermaid(input, { useAiFallback: true }).then((result) => {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
