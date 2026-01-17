@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NeuralParser } from "../src/neural/ai-parser";
-import * as transformers from "@xenova/transformers";
+import * as transformers from "@huggingface/transformers";
 
 // Mock pipeline
 const mockGenerator = vi.fn();
-vi.mock("@xenova/transformers", () => ({
+vi.mock("@huggingface/transformers", () => ({
   pipeline: vi.fn(),
 }));
 
