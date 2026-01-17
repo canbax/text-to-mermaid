@@ -25,11 +25,14 @@ describe("NeuralParser", () => {
     const parser = NeuralParser.getInstance();
     const result = await parser.parse("test input");
 
-    expect(transformers.pipeline).toHaveBeenCalledWith(
-      "text2text-generation",
-      "Xenova/LaMini-Flan-T5-78M",
+    expect(transformers.pipeline).toHaveBeenCalledWith("text2text-generation");
+    expect(mockGenerator).toHaveBeenCalledWith(
+      expect.stringContaining("mermaid.js"),
+      expect.objectContaining({
+        max_new_tokens: 512,
+        grammar: expect.stringContaining("root ::="),
+      }),
     );
-    expect(mockGenerator).toHaveBeenCalled();
     expect(result).toBe("graph TD; A-->B");
   });
 

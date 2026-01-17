@@ -1,5 +1,8 @@
 import { pipeline } from "@huggingface/transformers";
+import { mermaidGrammar } from "./mermaid-grammar";
 
+// use https://github.com/ggml-org/llama.cpp for LLM support with GBNF
+// llama-server -hf ggml-org/gemma-3-1b-it-GGUF
 export class NeuralParser {
   private static instance: NeuralParser;
   private pipe: any = null;
@@ -20,7 +23,10 @@ export class NeuralParser {
       }
 
       const prompt = `Convert this text to a mermaid.js syntax: ${text}`;
-      const result = await this.pipe(prompt, { max_new_tokens: 512 });
+      const result = await this.pipe(prompt, {
+        max_new_tokens: 512,
+        grammar: mermaidGrammar,
+      });
 
       let output = result[0].generated_text || "";
 
