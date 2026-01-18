@@ -50,6 +50,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@google/genai": "^1.37.0",
     "@huggingface/transformers": "^3.8.1",
     "compromise": "^14.14.5"
   }
