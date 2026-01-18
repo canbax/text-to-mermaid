@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { convertJsonToGrammar, flowchartSchema } from "./util";
+import { convertJsonToMermaid, flowchartSchema } from "./util";
 
 // 1. Define the Schema
 // Instead of an EBNF string, we define a JSON schema that represents the *structure* of your grammar.
@@ -38,5 +38,5 @@ export async function genaiParse(
     },
   });
 
-  return convertJsonToGrammar(JSON.parse(response?.text));
+  return convertJsonToMermaid(JSON.parse(response?.text));
 }
