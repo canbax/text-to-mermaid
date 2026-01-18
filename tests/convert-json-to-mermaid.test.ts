@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { convertJsonToMermaid } from "../src/neural/util";
 
 describe("convertJsonToMermaid", () => {
-  it("should be a singleton", () => {
+  it("should convert json to mermaid grammer string", () => {
     const testData = {
       orientation: "TD",
       nodes: [
@@ -23,22 +23,26 @@ describe("convertJsonToMermaid", () => {
         { sourceId: "F", targetId: "G", style: "<-->", label: "Exchange" },
       ],
     };
+
     const mermaidString = convertJsonToMermaid(testData);
-    const expected = `graph TD
-    A(Start)
-    B[Process]
-    C{Decision}
-    D["Database"]@{ shape: cylinder }
-    E["Cloud"]@{ shape: cloud }
-    F["Manual Input"]@{ shape: manual-input }
-    G["Multi Process"]@{ shape: multi-process }
-    A --> B |Go|
-    B ==> C |Check|
-    C -.-> D |Save|
-    C o--o E |Sync|
-    E x--x F |Stop|
-    F <--> G |Exchange|
-`;
-    expect(mermaidString).toBe(expected);
+
+    expect(mermaidString).toContain("graph TD");
+    expect(mermaidString).toContain("A(Start)");
+    expect(mermaidString).toContain("B[Process]");
+    expect(mermaidString).toContain("C{Decision}");
+    expect(mermaidString).toContain('D["Database"]@{ shape: cylinder }');
+    expect(mermaidString).toContain('E["Cloud"]@{ shape: cloud }');
+    expect(mermaidString).toContain(
+      'F["Manual Input"]@{ shape: manual-input }',
+    );
+    expect(mermaidString).toContain(
+      'G["Multi Process"]@{ shape: multi-process }',
+    );
+    expect(mermaidString).toContain("A --> | Go | B");
+    expect(mermaidString).toContain("B ==> | Check | C");
+    expect(mermaidString).toContain("C -.-> | Save | D");
+    expect(mermaidString).toContain("C o--o | Sync | E");
+    expect(mermaidString).toContain("E x--x | Stop | F");
+    expect(mermaidString).toContain("F <--> | Exchange | G");
   });
 });

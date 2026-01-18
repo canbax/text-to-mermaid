@@ -223,11 +223,9 @@ export function convertJsonToMermaid(data: any): string {
   // Generate link definitions
   // Grammar: link_def ::= node_id space link_style space node_id (space "|" label "|")?
   data.links.forEach((link: any) => {
-    let line = `    ${link.sourceId} ${link.style} ${link.targetId}`;
-    if (link.label) {
-      line += ` |${link.label}|`;
-    }
-    output += line + "\n";
+    const linkLabel = `${link.label ? "| " + link.label + " |" : ""}`;
+    const line = `${link.sourceId} ${link.style} ${linkLabel} ${link.targetId}\n`;
+    output += line;
   });
 
   return output;
