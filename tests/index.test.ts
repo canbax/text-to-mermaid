@@ -14,38 +14,42 @@ describe("textToMermaid", () => {
     vi.clearAllMocks();
   });
 
-  it("should return deterministic result if found", async () => {
-    // "User uses Tool" is a simple SVO that DeterministicParser handles (User = Subject, uses = Verb, Tool = Object)
-    // "User clicks Button" -> Subject: User, Verb: clicks, Object: Button.
+  it("should use DeterministicParser when useAI is false (default)", async () => {
+    // "User clicks Button" is valid SVO
+    const result = await textToMermaid("User clicks Button", { useAI: false });
 
-    const result = await textToMermaid("User clicks Button");
     expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
-  it("should return null if deterministic fails and fallback is disabled", async () => {
-    const result = await textToMermaid("Not a valid sentence structure", {
-      useAiFallback: false,
-    });
-    expect(result).toBeNull();
+  it("should use DeterministicParser when useAI is undefined", async () => {
+    const result = await textToMermaid("User clicks Button");
+
+    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
-  it("should use neural fallback if deterministic fails and native fallback is enabled", async () => {
+  it("should use genaiParse when useAI is true", async () => {
     mockGenaiParse.mockResolvedValue("graph TD; AI-->Generated");
 
-    const result = await textToMermaid("Just a simple noun phrase", {
-      useAiFallback: true,
-    });
+    const result = await textToMermaid("Some complex input", { useAI: true });
 
     expect(result).toBe("graph TD; AI-->Generated");
+    expect(mockGenaiParse).toHaveBeenCalledTimes(1);
+    expect(mockGenaiParse).toHaveBeenCalledWith(
+      "Some complex input",
+      undefined,
+      undefined,
+    );
   });
 
-  it("should NOT use neural fallback if deterministic succeeds, even if enabled", async () => {
-    const result = await textToMermaid("User clicks Button", {
-      useAiFallback: true,
-    });
-    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
-    expect(mockGenaiParse).not.toHaveBeenCalled();
+  it("should NOT use DeterministicParser when useAI is true, even if input is simple", async () => {
+    mockGenaiParse.mockResolvedValue("graph TD; AI-->Generated");
+
+    // "User clicks Button" is simple SVO, but with useAI=true it should go to AI
+    const result = await textToMermaid("User clicks Button", { useAI: true });
+
+    expect(result).toBe("graph TD; AI-->Generated");
+    expect(mockGenaiParse).toHaveBeenCalled();
   });
 });

@@ -65,7 +65,7 @@ convertBtn.addEventListener("click", async () => {
     };
 
     const result = await textToMermaid(text, {
-      useAiFallback: useAiFallback.checked,
+      useAI: useAiFallback.checked,
       aiConfig: useAiFallback.checked ? aiConfig : undefined,
     });
 
