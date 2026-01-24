@@ -202,16 +202,17 @@ export function convertJsonToMermaid(data: any): string {
 
   // Helper to format shapes based on your grammar: node_shape ::= ("[" label "]") | ("(" label ")") | ("{" label "}")
   const formatNode = (node: any) => {
+    const escapedLabel = node.label.replace(/"/g, '\\"');
     switch (node.shape) {
       case "round":
-        return `${node.id}(${node.label})`;
+        return `${node.id}("${escapedLabel}")`;
       case "rhombus":
-        return `${node.id}{${node.label}}`;
+        return `${node.id}{"${escapedLabel}"}`;
       case "square":
-        return `${node.id}[${node.label}]`;
+        return `${node.id}["${escapedLabel}"]`;
       default:
         // New shapes syntax: id["label"]@{ shape: shapeName }
-        return `${node.id}["${node.label}"]@{ shape: ${node.shape} }`;
+        return `${node.id}["${escapedLabel}"]@{ shape: ${node.shape} }`;
     }
   };
 

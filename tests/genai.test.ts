@@ -53,8 +53,8 @@ describe("genaiParse", () => {
     );
 
     expect(result).toContain("graph TD");
-    expect(result).toContain("A(Start)");
-    expect(result).toContain("B[End]");
+    expect(result).toContain('A("Start")');
+    expect(result).toContain('B["End"]');
     expect(result).toContain("A --> | Go | B");
   });
 });

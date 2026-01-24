@@ -27,9 +27,9 @@ describe("convertJsonToMermaid", () => {
     const mermaidString = convertJsonToMermaid(testData);
 
     expect(mermaidString).toContain("graph TD");
-    expect(mermaidString).toContain("A(Start)");
-    expect(mermaidString).toContain("B[Process]");
-    expect(mermaidString).toContain("C{Decision}");
+    expect(mermaidString).toContain('A("Start")');
+    expect(mermaidString).toContain('B["Process"]');
+    expect(mermaidString).toContain('C{"Decision"}');
     expect(mermaidString).toContain('D["Database"]@{ shape: cylinder }');
     expect(mermaidString).toContain('E["Cloud"]@{ shape: cloud }');
     expect(mermaidString).toContain(
@@ -44,5 +44,23 @@ describe("convertJsonToMermaid", () => {
     expect(mermaidString).toContain("C o--o | Sync | E");
     expect(mermaidString).toContain("E x--x | Stop | F");
     expect(mermaidString).toContain("F <--> | Exchange | G");
+  });
+
+  it("should handle labels with parentheses and special characters", () => {
+    const data = {
+      orientation: "TB",
+      nodes: [
+        {
+          id: "FMM",
+          label: 'Fast "Multipole" Method (FMM)',
+          shape: "round",
+        },
+      ],
+      links: [],
+    };
+
+    const result = convertJsonToMermaid(data);
+    // Should quote and escape internal quotes
+    expect(result).toContain('FMM("Fast \\"Multipole\\" Method (FMM)")');
   });
 });
