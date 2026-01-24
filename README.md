@@ -109,7 +109,8 @@ We do not use scraped web data, which is often expansive. We rely on **Synthetic
 
 ## llama.cpp as LLM
 
-install to your machine from https://github.com/ggml-org/llama.cpp
+- install to your machine from https://github.com/ggml-org/llama.cpp
+- run local LLM server with a command like `llama-server -hf ggml-org/gemma-3-1b-it-GGUF`
 
 ## grammer for mermaid.js syntax
 
