@@ -200,19 +200,43 @@ export const flowchartSchema: Schema = {
 export function convertJsonToMermaid(data: any): string {
   let output = `graph ${data.orientation}\n`;
 
+  const reservedWords = new Set([
+    "end",
+    "subgraph",
+    "graph",
+    "classDef",
+    "style",
+    "click",
+    "callback",
+    "linkStyle",
+  ]);
+
+  const idMap: Record<string, string> = {};
+
+  // Pre-process IDs to sanitise reserved words
+  data.nodes.forEach((node: any) => {
+    if (reservedWords.has(node.id)) {
+      idMap[node.id] = `id_${node.id}`;
+    } else {
+      idMap[node.id] = node.id;
+    }
+  });
+
   // Helper to format shapes based on your grammar: node_shape ::= ("[" label "]") | ("(" label ")") | ("{" label "}")
   const formatNode = (node: any) => {
     const escapedLabel = node.label.replace(/"/g, '\\"');
+    const safeId = idMap[node.id] || node.id; // fallback should not happen if processed correctly
+
     switch (node.shape) {
       case "round":
-        return `${node.id}("${escapedLabel}")`;
+        return `${safeId}("${escapedLabel}")`;
       case "rhombus":
-        return `${node.id}{"${escapedLabel}"}`;
+        return `${safeId}{"${escapedLabel}"}`;
       case "square":
-        return `${node.id}["${escapedLabel}"]`;
+        return `${safeId}["${escapedLabel}"]`;
       default:
         // New shapes syntax: id["label"]@{ shape: shapeName }
-        return `${node.id}["${escapedLabel}"]@{ shape: ${node.shape} }`;
+        return `${safeId}["${escapedLabel}"]@{ shape: ${node.shape} }`;
     }
   };
 
@@ -225,7 +249,10 @@ export function convertJsonToMermaid(data: any): string {
   // Grammar: link_def ::= node_id space link_style space node_id (space "|" label "|")?
   data.links.forEach((link: any) => {
     const linkLabel = `${link.label ? "| " + link.label + " |" : ""}`;
-    const line = `${link.sourceId} ${link.style} ${linkLabel} ${link.targetId}\n`;
+    const sourceId = idMap[link.sourceId] || link.sourceId; // Fallback for safety
+    const targetId = idMap[link.targetId] || link.targetId;
+
+    const line = `${sourceId} ${link.style} ${linkLabel} ${targetId}\n`;
     output += line;
   });
 

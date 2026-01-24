@@ -63,4 +63,22 @@ describe("convertJsonToMermaid", () => {
     // Should quote and escape internal quotes
     expect(result).toContain('FMM("Fast \\"Multipole\\" Method (FMM)")');
   });
+
+  it("should sanitize reserved word IDs", () => {
+    const data = {
+      orientation: "TD",
+      nodes: [
+        { id: "end", label: "End Node", shape: "round" },
+        { id: "start", label: "Start Node", shape: "round" },
+      ],
+      links: [
+        { sourceId: "start", targetId: "end", style: "-->", label: "Finish" },
+      ],
+    };
+
+    const result = convertJsonToMermaid(data);
+
+    expect(result).toContain('id_end("End Node")'); // Node def
+    expect(result).toContain("start --> | Finish | id_end"); // Link def
+  });
 });

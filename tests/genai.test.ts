@@ -57,4 +57,39 @@ describe("genaiParse", () => {
     expect(result).toContain('B["End"]');
     expect(result).toContain("A --> | Go | B");
   });
+
+  it("should use local LLM when baseUrl is provided", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                orientation: "TD",
+                nodes: [{ id: "A", label: "Start", shape: "round" }],
+                links: [],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const result = await genaiParse(
+      "start",
+      undefined,
+      "http://localhost:8080",
+    );
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "http://localhost:8080/v1/chat/completions",
+      expect.any(Object),
+    );
+    // Verify that the shared convertJsonToMermaid logic is applied (quoting labels)
+    expect(result).toContain('A("Start")');
+
+    vi.unstubAllGlobals();
+  });
 });
