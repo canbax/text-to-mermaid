@@ -11,7 +11,7 @@ export async function textToMermaid(
     };
   } = {},
 ): Promise<string | null> {
-  const { useAiFallback = false, aiConfig } = options;
+  const { useAiFallback = true, aiConfig } = options;
 
   // Step 1: Deterministic Parsing
   const deterministicParser = new DeterministicParser();
