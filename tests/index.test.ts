@@ -19,7 +19,7 @@ describe("textToMermaid", () => {
     // "User clicks Button" -> Subject: User, Verb: clicks, Object: Button.
 
     const result = await textToMermaid("User clicks Button");
-    expect(result).toBe("graph LR; User -->|clicks| Button");
+    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
@@ -34,7 +34,7 @@ describe("textToMermaid", () => {
   it("should use neural fallback if deterministic fails and native fallback is enabled", async () => {
     mockGenaiParse.mockResolvedValue("graph TD; AI-->Generated");
 
-    const result = await textToMermaid("Complex sentence that rules miss", {
+    const result = await textToMermaid("Just a simple noun phrase", {
       useAiFallback: true,
     });
 
@@ -45,7 +45,7 @@ describe("textToMermaid", () => {
     const result = await textToMermaid("User clicks Button", {
       useAiFallback: true,
     });
-    expect(result).toBe("graph LR; User -->|clicks| Button");
+    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 });

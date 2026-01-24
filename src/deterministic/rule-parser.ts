@@ -4,21 +4,35 @@ export class DeterministicParser {
   parse(text: string): string | null {
     const doc = nlp(text);
 
-    // Basic SVO detection
-    // We look for a Noun phrase followed by a Verb phrase followed by a Noun phrase
-    // [#Noun+] captures one or more nouns (compound nouns)
-    // [#Verb] captures the verb
-    // The second [#Noun+] captures the object
-    const match = doc.match("[<subject>#Noun+] [<verb>#Verb] [<object>.+]");
+    // Verb Pivot Strategy
+    // 1. Find the first main verb
+    // 2. Everything before is Subject
+    // 3. Everything after is Object
+    const firstVerb = doc.verbs().first();
 
-    if (match.found) {
-      const subject = (match.groups("subject") as any).text().trim();
-      const verb = (match.groups("verb") as any).text().trim();
-      const object = (match.groups("object") as any).text().trim();
+    if (firstVerb.found) {
+      const subject = doc
+        .splitBefore(firstVerb)
+        .first()
+        .text()
+        .trim()
+        .replace("(", "")
+        .replace(")", "")
+        .replace("[", "")
+        .replace("]", "");
+      const object = doc
+        .splitAfter(firstVerb)
+        .last()
+        .text()
+        .trim()
+        .replace("(", "")
+        .replace(")", "")
+        .replace("[", "")
+        .replace("]", "");
+      const verb = firstVerb.text().trim();
 
       if (subject && verb && object) {
-        // Construct Mermaid string
-        return `graph LR; ${subject} -->|${verb}| ${object}`;
+        return `graph LR; sub[${subject}] -->|${verb}| obj[${object}]`;
       }
     }
 
