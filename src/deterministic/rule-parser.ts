@@ -9,7 +9,7 @@ export class DeterministicParser {
     // [#Noun+] captures one or more nouns (compound nouns)
     // [#Verb] captures the verb
     // The second [#Noun+] captures the object
-    const match = doc.match("[<subject>#Noun+] [<verb>#Verb] [<object>#Noun+]");
+    const match = doc.match("[<subject>#Noun+] [<verb>#Verb] [<object>.+]");
 
     if (match.found) {
       const subject = (match.groups("subject") as any).text().trim();

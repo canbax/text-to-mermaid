@@ -27,4 +27,10 @@ describe("DeterministicParser", () => {
     const result = parser.parse(text);
     expect(result).toBeNull();
   });
+
+  it("should parse sentences with object phrases containing prepositions", () => {
+    const text = "users likes apps about games";
+    const result = parser.parse(text);
+    expect(result).toBe("graph LR; users -->|likes| apps about games");
+  });
 });
