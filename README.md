@@ -107,6 +107,25 @@ We do not use scraped web data, which is often expansive. We rely on **Synthetic
 2.  **Transformation**: GPT-4 guided by a "Literal Translator" prompt to generate strict JSON/Mermaid pairs.
 3.  **Filtration**: A script strictly rejects any pair where the output contains tokens not present in the input.
 
+## llama.cpp as LLM
+
+install to your machine from https://github.com/ggml-org/llama.cpp
+
+## grammer for mermaid.js syntax
+
+root ::= flowchart
+flowchart ::= "graph" space orientation statement*block
+orientation ::= ("TB" | "TD" | "BT" | "RL" | "LR")
+statement_block ::= statement+
+statement ::= space (node_def | link_def)
+node_def ::= node_id (space node_shape)?
+node_shape ::= ("[" label "]") | ("(" label ")") | ("{" label "}")
+link_def ::= node_id space link_style space node_id (space "|" label "|")?
+link_style ::= ("-->" | "---" | "-.->" | "==>")
+node_id ::= [a-zA-Z0-9*]+
+label ::= [a-zA-Z0-9_ ]+
+space ::= [ \\t\\n]+
+
 ## References
 
 This architecture synthesizes research from:
