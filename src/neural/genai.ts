@@ -20,7 +20,102 @@ function getEnv(key: string): string | undefined {
 export async function genaiParse(
   text: string,
   apiKey?: string,
+  baseUrl?: string,
 ): Promise<string | undefined> {
+  // 1. Local LLM Case (OpenAI Compatible)
+  if (baseUrl) {
+    const prompt = `Convert this text to a mermaid.js syntax: ${text}`;
+
+    // Convert Google Schema to Standard JSON Schema
+    const jsonSchema = {
+      type: "object",
+      properties: {
+        orientation: {
+          type: "string",
+          enum: ["TB", "TD", "BT", "RL", "LR"],
+          description: "The orientation of the flowchart.",
+        },
+        nodes: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+                description: "Unique alphanumeric identifier.",
+              },
+              label: { type: "string", description: "Text label." },
+              shape: {
+                type: "string",
+                description: "The shape of the node.",
+                enum: (flowchartSchema.properties?.nodes as any).items
+                  .properties.shape.enum,
+              },
+            },
+            required: ["id", "label", "shape"],
+          },
+        },
+        links: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              sourceId: { type: "string" },
+              targetId: { type: "string" },
+              style: {
+                type: "string",
+                enum: ["-->", "---", "-.->", "==>", "o--o", "x--x", "<-->"],
+              },
+              label: { type: "string" },
+            },
+            required: ["sourceId", "targetId", "style"],
+          },
+        },
+      },
+      required: ["orientation", "nodes", "links"],
+    };
+
+    try {
+      const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey || "not-needed"}`,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that converts text to mermaid.js flowchart JSON structure. You must output VALID JSON only.",
+            },
+            { role: "user", content: prompt },
+          ],
+          response_format: {
+            type: "json_object",
+            schema: jsonSchema,
+          },
+          temperature: 0.1,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Local LLM error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices[0]?.message?.content;
+
+      if (!content) return undefined;
+
+      return convertJsonToMermaid(JSON.parse(content));
+    } catch (e) {
+      console.error("Local LLM Parse Error:", e);
+      return undefined;
+    }
+  }
+
+  // 2. Google GenAI Case
   const key = apiKey || getEnv("GEMINI_API_KEY");
   if (!key) {
     console.warn("GEMINI_API_KEY not found in environment variables.");
@@ -38,5 +133,5 @@ export async function genaiParse(
     },
   });
 
-  return convertJsonToMermaid(JSON.parse(response?.text));
+  return convertJsonToMermaid(JSON.parse(response?.text || "{}"));
 }

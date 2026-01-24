@@ -3,9 +3,15 @@ import { genaiParse } from "./neural/genai";
 
 export async function textToMermaid(
   text: string,
-  options: { useAiFallback?: boolean } = {},
+  options: {
+    useAiFallback?: boolean;
+    aiConfig?: {
+      baseUrl?: string;
+      apiKey?: string;
+    };
+  } = {},
 ): Promise<string | null> {
-  const { useAiFallback = false } = options;
+  const { useAiFallback = false, aiConfig } = options;
 
   // Step 1: Deterministic Parsing
   const deterministicParser = new DeterministicParser();
@@ -19,7 +25,7 @@ export async function textToMermaid(
 
   // Step 3: Neural Fallback
   if (useAiFallback) {
-    const result = await genaiParse(text);
+    const result = await genaiParse(text, aiConfig?.apiKey, aiConfig?.baseUrl);
     return result || null;
   }
 

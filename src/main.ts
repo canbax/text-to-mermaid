@@ -3,7 +3,10 @@ import { textToMermaid } from "./index.ts";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 async function renderMermaid(input: string) {
-  const result = await textToMermaid(input, { useAiFallback: true });
+  const result = await textToMermaid(input, {
+    useAiFallback: true,
+    aiConfig: { baseUrl: "http://localhost:8080" },
+  });
   const div = document.createElement("div");
   div.innerHTML = `
     <div>
