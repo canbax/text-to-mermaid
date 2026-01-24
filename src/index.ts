@@ -1,5 +1,5 @@
 import { DeterministicParser } from "./deterministic/rule-parser";
-import { NeuralParser } from "./neural/ai-parser";
+import { genaiParse } from "./neural/genai";
 
 export async function textToMermaid(
   text: string,
@@ -19,8 +19,8 @@ export async function textToMermaid(
 
   // Step 3: Neural Fallback
   if (useAiFallback) {
-    const neuralParser = NeuralParser.getInstance();
-    return await neuralParser.parse(text);
+    const result = await genaiParse(text);
+    return result || null;
   }
 
   return null;
