@@ -18,14 +18,26 @@ describe("textToMermaid", () => {
     // "User clicks Button" is valid SVO
     const result = await textToMermaid("User clicks Button", { useAI: false });
 
-    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
+    const expected = [
+      "graph TB",
+      '    node_0(("User"))',
+      '    node_1["Button"]',
+      '    node_0 --> |"clicks"| node_1',
+    ].join("\n");
+    expect(result).toBe(expected);
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
   it("should use DeterministicParser when useAI is undefined", async () => {
     const result = await textToMermaid("User clicks Button");
 
-    expect(result).toBe("graph LR; sub[User] -->|clicks| obj[Button]");
+    const expected = [
+      "graph TB",
+      '    node_0(("User"))',
+      '    node_1["Button"]',
+      '    node_0 --> |"clicks"| node_1',
+    ].join("\n");
+    expect(result).toBe(expected);
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
