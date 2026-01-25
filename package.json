@@ -1,6 +1,6 @@
 {
   "name": "text-to-mermaid",
-  "version": "3.0.0",
+  "version": "0.0.1",
   "description": "A template for a javascript library",
   "type": "module",
   "main": "dist/index.cjs",

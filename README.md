@@ -1,6 +1,5 @@
-# Hybrid Architecture: Deterministic Natural Language to Mermaid.js Conversion Engine
+# text-to-mermaid: Natural Language to Mermaid.js Conversion Engine
 
-> **Architectural Paradigm**: Strict Fidelity Conversion  
 > **Philosophy**: "What You See Is What You Code" (WYSIWYC)
 
 ## Executive Summary
