@@ -48,8 +48,8 @@ export async function genaiParse(
               shape: {
                 type: "string",
                 description: "The shape of the node.",
-                enum: (flowchartSchema.properties?.nodes as any).items
-                  .properties.shape.enum,
+                enum: (flowchartSchema.properties?.nodes as any)?.items
+                  ?.properties?.shape?.enum,
               },
             },
             required: ["id", "label", "shape"],
