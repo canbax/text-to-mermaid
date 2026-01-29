@@ -8,11 +8,13 @@ const { mockGenerateContent } = vi.hoisted(() => {
 
 vi.mock("@google/genai", () => {
   return {
-    GoogleGenAI: vi.fn().mockImplementation(() => ({
-      models: {
-        generateContent: mockGenerateContent,
-      },
-    })),
+    GoogleGenAI: vi.fn(function () {
+      return {
+        models: {
+          generateContent: mockGenerateContent,
+        },
+      };
+    }),
     Type: {
       OBJECT: "OBJECT",
       STRING: "STRING",
