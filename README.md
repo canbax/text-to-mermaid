@@ -81,20 +81,16 @@ You can use a local LLM instead of cloud APIs for privacy and zero cost.
 
 # Install dependencies
 
-npm install
+`npm install`
 
 # start development server
 
-npm run dev
+`npm run dev`
 
 # Run tests
 
-npm test
+`npm test`
 
 # Build library
 
-npm run build
-
-```
-
-```
+`npm run build`
