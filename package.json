@@ -1,14 +1,24 @@
 {
   "name": "text-to-mermaid",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Convert natural language text to Mermaid.js syntax using rule-based algorithms or Large Language Models",
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.js",
+  "build": {
+    "lib": {
+      "entry": "src/index.ts",
+      "name": "text-to-mermaid",
+      "fileName": "index"
+    }
+  },
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
-      "import": "./dist/index.esm.js",
+      "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
   },
