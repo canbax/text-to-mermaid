@@ -1,6 +1,6 @@
 {
   "name": "text-to-mermaid",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Convert natural language text to Mermaid.js syntax using rule-based algorithms or Large Language Models",
   "type": "module",
   "main": "dist/index.cjs",

@@ -101,4 +101,23 @@ describe("DeterministicParser", () => {
     expect(result).toContain('node_1["server"]');
     expect(result).toContain('node_0 --> |"to"| node_1');
   });
+
+  it("should return valid graphs for various simple short sentences", () => {
+    const cases = [
+      "Login",
+      "System failure",
+      "Click button",
+      "File saved",
+      "Go home",
+      "Error occurred",
+    ];
+
+    cases.forEach((text) => {
+      const result = parser.parse(text);
+      expect(result).not.toBeNull();
+      // We don't enforce specific structure here, just that it returns *something* valid
+      expect(result).toContain("graph TB");
+      expect(result).toContain("node_0");
+    });
+  });
 });
