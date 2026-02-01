@@ -5,12 +5,9 @@ export class DeterministicParser {
     const doc = nlp(text);
     const nouns = doc.nouns().json();
 
-    if (nouns.length < 2) {
+    if (nouns.length === 0) {
       return null;
     }
-
-    let graph = "graph TB\n";
-    let previousNodeId: string | null = null;
 
     // Helper to clean text
     const cleanText = (str: string) => {
@@ -20,7 +17,54 @@ export class DeterministicParser {
         .replace(/\s+/g, " "); // collapse whitespace
     };
 
+    let graph = "graph TB\n";
+
+    // Handle single noun case (e.g. "Welcome to the era of Gemini 3.")
+    if (nouns.length === 1) {
+      const verbs = doc.verbs().json();
+      const nounObj = nouns[0];
+      const nounText = nounObj.text;
+
+      // If we have a verb before the noun, treat verb as start node
+      if (verbs.length > 0) {
+        // Find the first verb that appears before the noun
+        // Note: compromise output order usually matches text order, but checking indices is safer if available.
+        // For simplicity, we'll take the first verb found.
+        const verbObj = verbs[0];
+
+        // Simple heuristic: if verb is before noun in the text
+        const nounIndex = text.indexOf(nounText);
+        const verbIndex = text.indexOf(verbObj.text);
+
+        if (verbIndex !== -1 && nounIndex !== -1 && verbIndex < nounIndex) {
+          const verbLabel = cleanText(verbObj.text);
+          const nounLabel = cleanText(nounText)
+            .replace(/^(The|the|A|a|An|an)\s+/i, "")
+            .trim();
+
+          // Extract text between verb and noun for edge label
+          let edgeLabel = text
+            .substring(verbIndex + verbObj.text.length, nounIndex)
+            .trim();
+          if (!edgeLabel) edgeLabel = "to"; // fallback
+
+          graph += `    node_0((" ${verbLabel} "))\n`;
+          graph += `    node_1["${nounLabel}"]\n`;
+          graph += `    node_0 --> |"${edgeLabel}"| node_1\n`;
+          return graph.trim();
+        }
+      }
+
+      // Fallback: Just the noun node
+      const nounLabel = cleanText(nounText)
+        .replace(/^(The|the|A|a|An|an)\s+/i, "")
+        .trim();
+      graph += `    node_0((" ${nounLabel} "))\n`;
+      return graph.trim();
+    }
+
     let remainingText = text;
+    let previousNodeId: string | null = null;
 
     for (let i = 0; i < nouns.length; i++) {
       const nounObj = nouns[i];

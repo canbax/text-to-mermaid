@@ -31,16 +31,16 @@ describe("DeterministicParser", () => {
     expect(result).toBe(expected);
   });
 
-  it("should return null for incomplete sentences", () => {
-    const text = "Server starts"; // Missing object
+  it("should return a single node graph for incomplete sentences / single nouns", () => {
+    const text = "Server starts"; // "Server" is noun, "starts" might be seen as verb or plural noun depending on context, assuming mostly noun fallback here if no verb detected before it
     const result = parser.parse(text);
-    expect(result).toBeNull();
+    expect(result).toContain('node_0((" Server starts "))');
   });
 
-  it("should return null for unclear structure", () => {
+  it("should return a single node graph for unclear structure", () => {
     const text = "Hello world";
     const result = parser.parse(text);
-    expect(result).toBeNull();
+    expect(result).toContain('node_0((" world "))');
   });
 
   it("should parse sentences with object phrases containing prepositions", () => {
@@ -79,5 +79,26 @@ describe("DeterministicParser", () => {
 
     expect(result).toContain('node_4["n-body problem"]');
     expect(result).toContain('node_3 --> |"in"| node_4');
+  });
+
+  it("should parse single-noun sentences starting with a verb (imperative)", () => {
+    const text = "Welcome to the era of Gemini 3.";
+    const result = parser.parse(text);
+
+    // Should parse as: verb -> noun
+    expect(result).not.toBeNull();
+    expect(result).toContain('node_0((" Welcome "))');
+    expect(result).toContain('node_1["era of Gemini 3."]');
+    expect(result).toContain('node_0 --> |"to"| node_1');
+  });
+
+  it("should parse simple command sentences", () => {
+    const text = "Start the server";
+    const result = parser.parse(text);
+
+    expect(result).not.toBeNull();
+    expect(result).toContain('node_0((" Start "))');
+    expect(result).toContain('node_1["server"]');
+    expect(result).toContain('node_0 --> |"to"| node_1');
   });
 });
