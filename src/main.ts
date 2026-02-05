@@ -1,4 +1,4 @@
-import { textToMermaid } from "./index.ts";
+import { textToMermaid, ParseStrategy } from "./index.ts";
 
 const inputText = document.getElementById("inputText") as HTMLTextAreaElement;
 const useAiFallback = document.getElementById(
@@ -64,8 +64,17 @@ convertBtn.addEventListener("click", async () => {
       apiKey: apiKeyInput.value.trim() || undefined,
     };
 
+    let strategy: ParseStrategy = ParseStrategy.Deterministic;
+    if (useAiFallback.checked) {
+      if (aiConfig.baseUrl) {
+        strategy = ParseStrategy.Llm;
+      } else {
+        strategy = ParseStrategy.Gemini;
+      }
+    }
+
     const result = await textToMermaid(text, {
-      useAI: useAiFallback.checked,
+      strategy,
       aiConfig: useAiFallback.checked ? aiConfig : undefined,
     });
 

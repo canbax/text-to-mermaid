@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { textToMermaid } from "../src/index";
+import { textToMermaid, ParseStrategy } from "../src/index";
 import { genaiParse } from "../src/neural/genai";
 
 // Mock genaiParse
@@ -14,9 +14,11 @@ describe("textToMermaid", () => {
     vi.clearAllMocks();
   });
 
-  it("should use DeterministicParser when useAI is false (default)", async () => {
+  it("should use DeterministicParser when strategy is Deterministic (default)", async () => {
     // "User clicks Button" is valid SVO
-    const result = await textToMermaid("User clicks Button", { useAI: false });
+    const result = await textToMermaid("User clicks Button", {
+      strategy: ParseStrategy.Deterministic,
+    });
 
     const expected = [
       "graph TB",
@@ -28,7 +30,7 @@ describe("textToMermaid", () => {
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
-  it("should use DeterministicParser when useAI is undefined", async () => {
+  it("should use DeterministicParser when options are empty", async () => {
     const result = await textToMermaid("User clicks Button");
 
     const expected = [
@@ -41,27 +43,37 @@ describe("textToMermaid", () => {
     expect(mockGenaiParse).not.toHaveBeenCalled();
   });
 
-  it("should use genaiParse when useAI is true", async () => {
+  it("should use genaiParse when strategy is Gemini", async () => {
     mockGenaiParse.mockResolvedValue("graph TD; AI-->Generated");
 
-    const result = await textToMermaid("Some complex input", { useAI: true });
+    const result = await textToMermaid("Some complex input", {
+      strategy: ParseStrategy.Gemini,
+      aiConfig: { apiKey: "test-key" },
+    });
 
     expect(result).toBe("graph TD; AI-->Generated");
     expect(mockGenaiParse).toHaveBeenCalledTimes(1);
     expect(mockGenaiParse).toHaveBeenCalledWith(
       "Some complex input",
-      undefined,
+      "test-key",
       undefined,
     );
   });
 
-  it("should NOT use DeterministicParser when useAI is true, even if input is simple", async () => {
-    mockGenaiParse.mockResolvedValue("graph TD; AI-->Generated");
+  it("should use genaiParse with baseUrl when strategy is Llm", async () => {
+    mockGenaiParse.mockResolvedValue("graph TD; Local-->Generated");
 
-    // "User clicks Button" is simple SVO, but with useAI=true it should go to AI
-    const result = await textToMermaid("User clicks Button", { useAI: true });
+    const result = await textToMermaid("Some complex input", {
+      strategy: ParseStrategy.Llm,
+      aiConfig: { baseUrl: "http://localhost:8080" },
+    });
 
-    expect(result).toBe("graph TD; AI-->Generated");
-    expect(mockGenaiParse).toHaveBeenCalled();
+    expect(result).toBe("graph TD; Local-->Generated");
+    expect(mockGenaiParse).toHaveBeenCalledTimes(1);
+    expect(mockGenaiParse).toHaveBeenCalledWith(
+      "Some complex input",
+      undefined,
+      "http://localhost:8080",
+    );
   });
 });
