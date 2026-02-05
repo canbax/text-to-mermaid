@@ -32,7 +32,8 @@
     "test-watch": "vitest",
     "test": "vitest run",
     "prepare": "husky install",
-    "checks": "npm run format && npm run lint && npm run test"
+    "checks": "npm run format && npm run lint && npm run test",
+    "patch-release": "npm run checks && npm run build && npm version patch && npm publish"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,vue,astro,svelte,json,md}": [
