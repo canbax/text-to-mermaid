@@ -1,68 +1,59 @@
 import nlp from "compromise";
 
 export class DeterministicParser {
-  parse(text: string): string | null {
-    const doc = nlp(text);
-    const nouns = doc.nouns().json();
+  private cleanText(str: string): string {
+    return str
+      .trim()
+      .replace(/["[\]()]/g, "") // remove quotes and brackets
+      .replace(/\s+/g, " "); // collapse whitespace
+  }
 
-    if (nouns.length === 0) {
-      return null;
-    }
-
-    // Helper to clean text
-    const cleanText = (str: string) => {
-      return str
-        .trim()
-        .replace(/["[\]()]/g, "") // remove quotes and brackets
-        .replace(/\s+/g, " "); // collapse whitespace
-    };
-
+  private processSingleNoun(text: string, doc: any, nouns: any[]): string {
     let graph = "graph TB\n";
+    const verbs = doc.verbs().json();
+    const nounObj = nouns[0];
+    const nounText = nounObj.text;
 
-    // Handle single noun case (e.g. "Welcome to the era of Gemini 3.")
-    if (nouns.length === 1) {
-      const verbs = doc.verbs().json();
-      const nounObj = nouns[0];
-      const nounText = nounObj.text;
+    // If we have a verb before the noun, treat verb as start node
+    if (verbs.length > 0) {
+      // Find the first verb that appears before the noun
+      // Note: compromise output order usually matches text order, but checking indices is safer if available.
+      // For simplicity, we'll take the first verb found.
+      const verbObj = verbs[0];
 
-      // If we have a verb before the noun, treat verb as start node
-      if (verbs.length > 0) {
-        // Find the first verb that appears before the noun
-        // Note: compromise output order usually matches text order, but checking indices is safer if available.
-        // For simplicity, we'll take the first verb found.
-        const verbObj = verbs[0];
+      // Simple heuristic: if verb is before noun in the text
+      const nounIndex = text.indexOf(nounText);
+      const verbIndex = text.indexOf(verbObj.text);
 
-        // Simple heuristic: if verb is before noun in the text
-        const nounIndex = text.indexOf(nounText);
-        const verbIndex = text.indexOf(verbObj.text);
+      if (verbIndex !== -1 && nounIndex !== -1 && verbIndex < nounIndex) {
+        const verbLabel = this.cleanText(verbObj.text);
+        const nounLabel = this.cleanText(nounText)
+          .replace(/^(The|the|A|a|An|an)\s+/i, "")
+          .trim();
 
-        if (verbIndex !== -1 && nounIndex !== -1 && verbIndex < nounIndex) {
-          const verbLabel = cleanText(verbObj.text);
-          const nounLabel = cleanText(nounText)
-            .replace(/^(The|the|A|a|An|an)\s+/i, "")
-            .trim();
+        // Extract text between verb and noun for edge label
+        let edgeLabel = text
+          .substring(verbIndex + verbObj.text.length, nounIndex)
+          .trim();
+        if (!edgeLabel) edgeLabel = "to"; // fallback
 
-          // Extract text between verb and noun for edge label
-          let edgeLabel = text
-            .substring(verbIndex + verbObj.text.length, nounIndex)
-            .trim();
-          if (!edgeLabel) edgeLabel = "to"; // fallback
-
-          graph += `    node_0((" ${verbLabel} "))\n`;
-          graph += `    node_1["${nounLabel}"]\n`;
-          graph += `    node_0 --> |"${edgeLabel}"| node_1\n`;
-          return graph.trim();
-        }
+        graph += `    node_0((" ${verbLabel} "))\n`;
+        graph += `    node_1["${nounLabel}"]\n`;
+        graph += `    node_0 --> |"${edgeLabel}"| node_1\n`;
+        return graph.trim();
       }
-
-      // Fallback: Just the noun node
-      const nounLabel = cleanText(nounText)
-        .replace(/^(The|the|A|a|An|an)\s+/i, "")
-        .trim();
-      graph += `    node_0((" ${nounLabel} "))\n`;
-      return graph.trim();
     }
 
+    // Fallback: Just the noun node
+    const nounLabel = this.cleanText(nounText)
+      .replace(/^(The|the|A|a|An|an)\s+/i, "")
+      .trim();
+    graph += `    node_0((" ${nounLabel} "))\n`;
+    return graph.trim();
+  }
+
+  private processMultipleNouns(text: string, nouns: any[]): string {
+    let graph = "graph TB\n";
     let remainingText = text;
     let previousNodeId: string | null = null;
 
@@ -83,7 +74,7 @@ export class DeterministicParser {
 
       // Current Node ID
       const nodeId = `node_${i}`;
-      const nodeLabel = cleanText(nounText)
+      const nodeLabel = this.cleanText(nounText)
         .replace(/^(The|the|A|a|An|an)\s+/i, "") // Remove leading articles from label
         .trim();
 
@@ -96,7 +87,7 @@ export class DeterministicParser {
       // Add Edge from Previous Node
       if (previousNodeId) {
         // Clean edge label
-        let edgeLabel = cleanText(preText);
+        let edgeLabel = this.cleanText(preText);
         edgeLabel = edgeLabel.replace(/^(that|which|who)\s+/i, "");
 
         if (!edgeLabel) {
@@ -116,5 +107,21 @@ export class DeterministicParser {
     }
 
     return graph.trim();
+  }
+
+  parse(text: string): string | null {
+    const doc = nlp(text);
+    const nouns = doc.nouns().json();
+
+    if (nouns.length === 0) {
+      return null;
+    }
+
+    // Handle single noun case (e.g. "Welcome to the era of Gemini 3.")
+    if (nouns.length === 1) {
+      return this.processSingleNoun(text, doc, nouns);
+    }
+
+    return this.processMultipleNouns(text, nouns);
   }
 }
