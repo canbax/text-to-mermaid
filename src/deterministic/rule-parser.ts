@@ -111,10 +111,27 @@ export class DeterministicParser {
   }
 
   private processNoNouns(doc: Three, text: string): string | null {
+    // Check for Question Words (Start of sentence)
+    const questionWords = ["Who", "What", "Where", "When", "Why", "How"];
+    const firstWord = text.split(" ")[0].trim();
+
+    if (questionWords.includes(firstWord.replace(/[^a-zA-Z]/g, ""))) {
+      // simple check
+      // Split: Question Word -> Rest of sentence
+      const node0Label = this.cleanText(firstWord);
+      const restOfSentence = text.substring(firstWord.length).trim();
+      const node1Label = this.cleanText(restOfSentence);
+
+      let graph = "graph TB\n";
+      graph += `    node_0((" ${node0Label} "))\n`;
+      graph += `    node_1["${node1Label}"]\n`;
+      graph += `    node_0 --> node_1\n`;
+      return graph.trim();
+    }
+
     // Fallback 1: Check for verbs
     const verbs = doc.verbs().json();
-    const questions = doc.questions().json();
-    console.log(questions);
+
     if (verbs.length > 0) {
       const verbObj = verbs[0];
       const verbLabel = this.cleanText(verbObj.text);
@@ -123,7 +140,7 @@ export class DeterministicParser {
       return graph.trim();
     }
 
-    // Fallback 2: Check strictly for short text length (e.g. "Why participate?")
+    // Fallback 2: Check strictly for short text length
     if (text.length < 50) {
       const textLabel = this.cleanText(text);
       let graph = "graph TB\n";

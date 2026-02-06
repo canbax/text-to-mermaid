@@ -106,10 +106,11 @@ describe("DeterministicParser", () => {
     const text = "Why participate?";
     const result = parser.parse(text);
 
-    console.log(result);
-
     expect(result).not.toBeNull();
-    expect(result).toContain('node_0((" participate? "))');
+    // Expect "Why" -> "participate?"
+    expect(result).toContain('node_0((" Why "))');
+    expect(result).toContain('node_1["participate?"]');
+    expect(result).toContain("node_0 --> node_1");
   });
 
   it("should return valid graphs for various simple short sentences", () => {
