@@ -102,6 +102,16 @@ describe("DeterministicParser", () => {
     expect(result).toContain('node_0 --> |"to"| node_1');
   });
 
+  it("should parse no noun sentences", () => {
+    const text = "Why participate?";
+    const result = parser.parse(text);
+
+    console.log(result);
+
+    expect(result).not.toBeNull();
+    expect(result).toContain('node_0((" participate? "))');
+  });
+
   it("should return valid graphs for various simple short sentences", () => {
     const cases = [
       "Login",

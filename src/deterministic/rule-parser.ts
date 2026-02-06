@@ -1,4 +1,5 @@
 import nlp from "compromise";
+import type Three from "compromise/view/three";
 
 export class DeterministicParser {
   private cleanText(str: string): string {
@@ -8,7 +9,7 @@ export class DeterministicParser {
       .replace(/\s+/g, " "); // collapse whitespace
   }
 
-  private processSingleNoun(text: string, doc: any, nouns: any[]): string {
+  private processSingleNoun(text: string, doc: Three, nouns: any[]): string {
     let graph = "graph TB\n";
     const verbs = doc.verbs().json();
     const nounObj = nouns[0];
@@ -109,12 +110,36 @@ export class DeterministicParser {
     return graph.trim();
   }
 
+  private processNoNouns(doc: Three, text: string): string | null {
+    // Fallback 1: Check for verbs
+    const verbs = doc.verbs().json();
+    const questions = doc.questions().json();
+    console.log(questions);
+    if (verbs.length > 0) {
+      const verbObj = verbs[0];
+      const verbLabel = this.cleanText(verbObj.text);
+      let graph = "graph TB\n";
+      graph += `    node_0((" ${verbLabel} "))\n`;
+      return graph.trim();
+    }
+
+    // Fallback 2: Check strictly for short text length (e.g. "Why participate?")
+    if (text.length < 50) {
+      const textLabel = this.cleanText(text);
+      let graph = "graph TB\n";
+      graph += `    node_0((" ${textLabel} "))\n`;
+      return graph.trim();
+    }
+
+    return null;
+  }
+
   parse(text: string): string | null {
-    const doc = nlp(text);
+    const doc: Three = nlp(text);
     const nouns = doc.nouns().json();
 
     if (nouns.length === 0) {
-      return null;
+      return this.processNoNouns(doc, text);
     }
 
     // Handle single noun case (e.g. "Welcome to the era of Gemini 3.")
