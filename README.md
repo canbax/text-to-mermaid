@@ -16,14 +16,23 @@ The system offers two modes of operation, selectable via configuration:
 
 _Default Mode_
 
-For simple, linear flows, we use [Compromise](https://github.com/spencermountain/compromise), a lightweight NLP library.
+For simple, linear flows, we use [Compromise](https://github.com/spencermountain/compromise), a lightweight NLP library. It employs three main strategies:
 
-- **Logic**: It identifies key entities (nouns) in the text and links them sequentially.
-- **Mechanism**: `Input Text -> Extract Nouns -> Linear Graph (Node A -> Node B -> ...)`
+1.  **Linear Noun Chain** (Standard):
+    - **Logic**: Identifies multiple nouns and links them sequentially.
+    - **Mechanism**: `Subject -> [verb/preposition] -> Object -> ...`
+2.  **Verb-Pivot** (Single Noun):
+    - **Logic**: When only one noun is found, it pivots on the preceding verb.
+    - **Example**: "Participate in the event" -> `Participate (Verb) -> [in] -> Event (Noun)`
+3.  **No-Noun Fallback** (Zero Hallucination):
+    - **Question Mode**: Splits questions like "Why participate?" into `Question -> Context`.
+    - **Verb Mode**: Uses the main verb as a node if no nouns exist.
+    - **Raw Text**: Visualizes the raw text as a node for short phrases.
+
 - **Pros**:
   - Extremely fast (<15ms).
   - 100% Offline.
-  - Zero hallucination (only visualizes what's explicitly named).
+  - **Zero hallucination**: Strictly visualizes what is explicitly in the text.
 
 ### 2. Neural Mode (generative AI)
 
